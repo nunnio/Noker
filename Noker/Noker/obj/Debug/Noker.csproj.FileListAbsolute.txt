@@ -1,0 +1,10 @@
+C:\Users\Propietario\source\repos\Noker\Noker\obj\Debug\Noker.csproj.AssemblyReference.cache
+C:\Users\Propietario\source\repos\Noker\Noker\obj\Debug\Noker.csproj.SuggestedBindingRedirects.cache
+C:\Users\Propietario\source\repos\Noker\Noker\obj\Debug\Noker.csproj.CoreCompileInputs.cache
+C:\Users\Propietario\source\repos\Noker\Noker\bin\Debug\Noker.exe.config
+C:\Users\Propietario\source\repos\Noker\Noker\bin\Debug\Noker.exe
+C:\Users\Propietario\source\repos\Noker\Noker\bin\Debug\Noker.pdb
+C:\Users\Propietario\source\repos\Noker\Noker\bin\Debug\LibreriaBaraja.dll
+C:\Users\Propietario\source\repos\Noker\Noker\obj\Debug\Noker.csproj.CopyComplete
+C:\Users\Propietario\source\repos\Noker\Noker\obj\Debug\Noker.exe
+C:\Users\Propietario\source\repos\Noker\Noker\obj\Debug\Noker.pdb
