@@ -1,4 +1,5 @@
-﻿using LibreriaBaraja;
+// mcs -r:LibreriaBaraja.dll Noker.cs
+using LibreriaBaraja;
 using System;
 using System.Collections.Generic;
 namespace Noker{
@@ -28,6 +29,9 @@ namespace Noker{
 				// -- Inicio del juego --
 				// Reparto n cartas a cada mano
 				Reparte(baraja, mano1, mano2, n);
+				Ordena(mano1, n);
+				Ordena(mano2, n);
+				Console.Clear();
 				// Se apuesta un valor.
 				apuesta = Apostar(dinero, apuesta, mano1);
 				Console.WriteLine("Esta es tu mano, escribe la posición de carta que desees descartar:");
@@ -42,8 +46,8 @@ namespace Noker{
 				Console.WriteLine("Intro para ver las cartas de la mesa: ");
 				Console.ReadLine();
 				// Cuento los puntos de ambas manos.
-				puntos1 = CuentaPuntos(mano1);
-				puntos2 = CuentaPuntos(mano2);
+				puntos1 = CuentaPuntos(mano1, n);
+				puntos2 = CuentaPuntos(mano2, n);
 				// Muestro ambas manos y manos y declaro el ganador o empate.
 				Console.WriteLine("");
 				Console.WriteLine("Tu mano:");
@@ -130,10 +134,40 @@ namespace Noker{
 				mano2.Add(c);
 			}
 		}
+
+		// Método que ordena las cartas de la mano
+		public static void Ordena(List<Carta> mano, int n){
+			Carta aux;
+			int puntos = 0;
+			// Esto ordena las cartas por palos, pero no poir jugadas.
+			for(int i = 0; i < n; i++){
+				for(int j = 0; j < n-1; j++){
+					if(mano[i].getPalo() < mano[j].getPalo()){
+						aux = mano[i];
+						mano[i] = mano[j];
+						mano[j] = aux;
+					}
+				}
+			}
+			for(int i=0; i < n; i++){
+				for(int j=0; j<n; j++){
+					if(mano[i].getPalo() == mano[j].getPalo()){
+						puntos++;					
+					}
+				}
+				if(puntos == 1){
+					aux = mano[i];
+					mano[i] = mano[n-1];
+					mano[n-1] = aux;
+				}
+				puntos = 0;
+			}
+		}
+
 		// Método que establece la apuesta retornando el valor que se apostará
 		public static int Apostar(int dinero, int apuesta, List<Carta>mano1)
 		{
-			bool esN = false;
+			
 			String s;
 			int min = 3;
 			if (dinero < min)
@@ -143,16 +177,15 @@ namespace Noker{
 			else if (dinero > 25 && dinero < 35)
 				min = 7;
 			else if (dinero > 35 && dinero < 50)
-				min = 10;
+				min = 15;
 			else if (dinero > 50 && dinero < 75)
-				min = 20;
+				min = 25;
 			else if (dinero > 75 && dinero < 100)
 				min = 40;
 			else if (dinero > 100)
 				min = 50;
 			
 			
-			Console.Clear();
 			Console.WriteLine("\n\t# Dinero: "+dinero+" # ");
 			Muestra(mano1);
 			Console.WriteLine("Esta es tu mano inical, introduce el número de monedas que quieras apostar[min "+min+"]");
@@ -165,7 +198,7 @@ namespace Noker{
 					Console.WriteLine("Datos incorrectos, apuestas el mínimo ["+min+"]");
 					apuesta = min;
 				}
-				esN = true;
+				
 			}
 			else{
 				Console.WriteLine("Apuestas el mínimo["+min+"]");
@@ -272,12 +305,12 @@ namespace Noker{
 		
 		// Método que cuenta los puntos conseguidos de una mano. Retorna dichos puntos.
 		// Dependiendo de la cantidad de puntos, la mano tendrá una jugada u otra.
-		public static int CuentaPuntos(List<Carta> mano){
+		public static int CuentaPuntos(List<Carta> mano, int n){
 			// Declaración de la variable a -5, ya que como mínimo cada mano tendrá 5 puntos asegurados (que será ella misma).
-			int puntos = -5;
+			int puntos = -n;
 			// Dos bucles en los que se comparan cada carta de una mano entre sí. Si la carta coincide se suma un punto.
-			for(int i=0; i<5; i++){
-				for(int j=0; j<5; j++){
+			for(int i=0; i < n; i++){
+				for(int j=0; j < n; j++){
 					if(mano[i].getPalo() == mano[j].getPalo()){
 						puntos++;
 					}
