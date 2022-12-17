@@ -2,12 +2,16 @@
 using LibreriaBaraja;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+
 namespace Noker{
 	public class Noker{
 		static void Main(String[] args){
 			int n = 5;
 			int dinero = 7;
 			int apuesta = 0;
+			int estrellas = 0;
 			String re;
 			bool jugar = true;
 			bool gana;
@@ -32,11 +36,12 @@ namespace Noker{
 				Ordena(mano1, n);
 				Ordena(mano2, n);
 				Console.Clear();
+				Ia(mano2, baraja);
 				// Se apuesta un valor.
-				apuesta = Apostar(dinero, apuesta, mano1);
+				apuesta = Apostar(dinero, apuesta, mano1, estrellas);
 				Console.WriteLine("Esta es tu mano, escribe la posición de carta que desees descartar:");
 				MuestraNumerado(mano1);
-				contador = Descarte(mano1);
+				contador = Descarte(mano1, n);
 				// Compruebo si el contador de descarte es mayor a 0, si no, no entra en el método restock para volver a completar la mano.
 				if(contador > 0)
 					Restock(contador, mano1, baraja);
@@ -71,34 +76,53 @@ namespace Noker{
 							break;
 					}
 					apuesta = (apuesta * multiplicador);
-					Console.WriteLine("¡Felicidades! Has conseguido "+ apuesta +" monedas");
+					Console.WriteLine("\n¡Felicidades! Has conseguido "+ apuesta +" monedas");
 					dinero = (dinero + apuesta);
 				}
 				else
 				{
-					Console.WriteLine("¡Oh no! Has perdido "+ apuesta +" monedas");
+					Console.WriteLine("\n¡Oh no! Has perdido "+ apuesta +" monedas");
 					dinero = (dinero - apuesta);
 				}
 				Console.WriteLine("Ahora tienes "+ dinero +" monedas");
-				Console.WriteLine("\n\t-- Fin del programa. Rejugar?(1/0)[1] --");
-				re = Console.ReadLine();
-				if(int.TryParse(re, out esn)){
-					esn = int.Parse(re);
-					if(esn == 1)
-						jugar = true;
-					else if(esn == 0){
+				Extra(dinero, estrellas);
+				if (dinero <= 0)
+				{
+					Console.WriteLine("Te quedaste sin monedas.\n\tHas perdido");
+					jugar = false;
+					Console.WriteLine("\nGracias por jugar");
+				}
+				else
+				{
+					Console.WriteLine("\n\t-- Fin del programa. Rejugar?(1/0)[1] --");
+					if (estrellas == 999)
+					{
 						jugar = false;
-						Console.WriteLine("Gracias por jugar");
 					}
-					else{
-						jugar = true;
-						Console.WriteLine("\n\tjuego de nuevo\n");
+					else
+					{
+						re = Console.ReadLine();
+						if(int.TryParse(re, out esn)){
+							esn = int.Parse(re);
+							if(esn == 1)
+								jugar = true;
+							else if(esn == 0){
+								jugar = false;
+								Console.WriteLine("\nGracias por jugar");
+							}
+							else{
+								jugar = true;
+								Console.WriteLine("\n\tjuego de nuevo\n");
 
+							}
+						}
+						else{
+							Console.WriteLine("\n\tjuego de nuevo\n");
+						}
 					}
+					
 				}
-				else{
-					Console.WriteLine("\n\tjuego de nuevo\n");
-				}
+				
 			}
 
 		}
@@ -138,8 +162,7 @@ namespace Noker{
 		// Método que ordena las cartas de la mano
 		public static void Ordena(List<Carta> mano, int n){
 			Carta aux;
-			int puntos = 0;
-			// Esto ordena las cartas por palos, pero no poir jugadas.
+			// Esto ordena las cartas por palos, pero no pero jugadas.
 			for(int i = 0; i < n; i++){
 				for(int j = 0; j < n-1; j++){
 					if(mano[i].getPalo() < mano[j].getPalo()){
@@ -149,23 +172,10 @@ namespace Noker{
 					}
 				}
 			}
-			for(int i=0; i < n; i++){
-				for(int j=0; j<n; j++){
-					if(mano[i].getPalo() == mano[j].getPalo()){
-						puntos++;					
-					}
-				}
-				if(puntos == 1){
-					aux = mano[i];
-					mano[i] = mano[n-1];
-					mano[n-1] = aux;
-				}
-				puntos = 0;
-			}
 		}
 
 		// Método que establece la apuesta retornando el valor que se apostará
-		public static int Apostar(int dinero, int apuesta, List<Carta>mano1)
+		public static int Apostar(int dinero, int apuesta, List<Carta>mano1, int estrellas)
 		{
 			
 			String s;
@@ -186,7 +196,7 @@ namespace Noker{
 				min = 50;
 			
 			
-			Console.WriteLine("\n\t# Dinero: "+dinero+" # ");
+			Console.WriteLine("\n\t# Dinero: "+dinero+" #\t\t@ Estrellas[★]: "+estrellas+" @");
 			Muestra(mano1);
 			Console.WriteLine("Esta es tu mano inical, introduce el número de monedas que quieras apostar[min "+min+"]");
 			s = Console.ReadLine();
@@ -225,34 +235,48 @@ namespace Noker{
 		}
 		
 		// Método que quita las cartas deseadas de una Lista. Retorna el número de cartas que se han descartado.
-		public static int Descarte(List<Carta> mano){
+		public static int Descarte(List<Carta> mano, int n){
 			// Creo variables y bucle para comprobar datos y que se repita si el dicho dato no es correcto.
 			int sel;
 			String s;
 			int contador = 0;
 			bool entra = true;
 			Console.WriteLine("Elige las cartas que quieras descartar seleccionando su posición e intro. Para finalizar la selección de descarte presiona 0: ");
-			while(entra){
-				Console.Write("Descarto la carta nº (0 para acabar): ");
+			while(entra)
+			{
+				Console.Write("Descarto la carta nº[0]: ");
 				s = Console.ReadLine();
-				if(int.TryParse(s, out sel)){
-					sel = int.Parse(s);
-					// Try catch para que los datos introducidos sean del 0 al 5 obligatoriamente, en otro caso se cerrará el modo descarte.
-					try{
-						// Borro la posición enviada.
-						mano.RemoveAt(sel-1);
-						// Sumo uno al contador de descarte.
-						contador++;
-						// Vuelvo a mostrar la mano con las cartas restantes.
-						MuestraNumerado(mano);
+				if (s == "")
+				{
+					entra = false;
+				}
+				else
+				{
+					if(int.TryParse(s, out sel)){
+						sel = int.Parse(s);
+						// Try catch para que los datos introducidos sean del 0 al 5 obligatoriamente, en otro caso se cerrará el modo descarte.
+						try
+						{
+							// Borro la posición enviada.
+							mano.RemoveAt(sel - 1);
+							// Sumo uno al contador de descarte.
+							contador++;
+							// Vuelvo a mostrar la mano con las cartas restantes.
+							MuestraNumerado(mano);
+						}
+						catch (Exception e)
+						{
+							entra = false;
+						}
 					}
-					catch(Exception){
-						Console.WriteLine("-- Fin del descarte --");
+					else
+					{
 						entra = false;
 					}
 				}
-				else{
-					Console.WriteLine("Introduce un dato válido");
+				if (!entra)
+				{
+					Console.WriteLine("-- Fin del descarte --");
 				}
 			}
 			return contador;
@@ -290,14 +314,14 @@ namespace Noker{
 			}
 			// Condición que imprime si el ganador es el jugador, contrincante o empate según quién tenga más puntos 
 			if(puntos1>puntos2){
-				Console.WriteLine("Nokeaste al contrincante\n\t¡Has ganado!");
+				Console.WriteLine("\nNokeaste al contrincante\n\t¡Has ganado esta mano!");
 				gana = true;
 			}
 			else if(puntos1 == puntos2){
-				Console.WriteLine("El contrincante y tu os habeis noqueado mutuamente\n\t¡Empate!");
+				Console.WriteLine("\nEl contrincante y tu os habeis noqueado mutuamente\n\t¡Empate!");
 			}
 			else{
-				Console.WriteLine("¡El contrincante te ha nokeado!\n\tHas perdido");
+				Console.WriteLine("\n¡El contrincante te ha nokeado!\n\tHas perdido esta mano");
 
 			}
 			return gana;
@@ -317,6 +341,67 @@ namespace Noker{
 				}
 			}
 			return puntos;
+		}
+
+		public static void Ia(List<Carta> mano, Baraja baraja)
+		{
+			int puntos = 0;
+			int posicion = 0;
+			int contador = 0;
+		
+			for(int i=0; i < mano.Count; i++){
+				for(int j=0; j< mano.Count; j++){
+					if(mano[i].getPalo() == mano[j].getPalo())
+					{
+						puntos++;
+						posicion = j;
+					}
+				}
+				if (puntos == 1)
+				{
+					mano.RemoveAt(posicion);
+					contador++;
+				}
+				puntos = 0;
+			}
+			Restock(contador, mano, baraja);
+		}
+
+		public static void Extra(int dinero, int estrellas)
+		{
+			switch (dinero)
+			{
+				case 72: Console.Clear();Console.WriteLine("ou iea 72");
+					for (int i = 0; i < 72; i++)
+					{
+						Console.Write("72 ");
+					}
+					Console.WriteLine("\n");
+					break;
+				case 666: Console.Clear();Console.WriteLine("Epa el devil");
+					break;
+			}
+			if (dinero >= 500)
+			{
+				Console.Clear();
+				Console.WriteLine("¡Felicidades! Has conseguido una estrella, toma[★].\nEl dinero volverá a 7 monedas.");
+				dinero = 7;
+				estrellas++;
+				switch (estrellas)
+				{
+					case 1: Console.WriteLine("Ahora deberías dejar de jugar.");
+						break;
+					case 2: Console.WriteLine("En serio, mejor para.");
+						break;
+					case 3: Console.WriteLine("¿Pero qué estás haciendo con tu vida? Cierra el juego y llama a tu madre.");
+						break;
+					case 4: Console.WriteLine("Último intento, esto no sirve para nada.");
+						break;
+					case 5: Console.Clear();
+						estrellas = 999;
+						break;
+				}
+			}
 		}
 	}
 }
